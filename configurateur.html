@@ -70,6 +70,9 @@
            font-family:inherit; font-weight:600; font-size:13px; cursor:pointer; }
   button.ghost { background:rgba(251,249,241,.12); }
   .hint { font-size:11.5px; opacity:.62; margin-top:10px; line-height:1.55; }
+  /* Encart d'avertissement : sans cette règle, la mise en garde « l'aperçu n'est pas le rendu
+     final » passait totalement inaperçue (classe utilisée mais non définie). */
+  .warn { border-left:3px solid var(--accent); padding-left:10px; opacity:.85; }
   .hint a { color:var(--accent); }
   .hint code { background:rgba(251,249,241,.1); padding:1px 4px; border-radius:4px; }
   iframe { width:100%; height:clamp(340px, 58vh, 760px); border:0; border-radius:12px;
@@ -120,6 +123,7 @@
         <label>Mise en page</label>
         <select id="layout">
           <option value="">Carte verticale (média en haut)</option>
+          <option value="square">Carrée tout-en-un (pochette pleine carte)</option>
           <option value="horizontal">Bandeau horizontal</option>
           <option value="mini">Bandeau minimaliste</option>
           <option value="text">Texte seul (sans pochette)</option>
@@ -370,7 +374,7 @@ function buildQuery(withTest) {
   const p = [];
   if (withTest) p.push('test=1');
   const layout = $('layout').value; if (layout) p.push('layout=' + layout);
-  const defW = layout === 'mini' ? '300' : (layout === 'horizontal' ? '340' : (layout === 'text' ? '320' : (layout === 'bare' ? '420' : '240')));
+  const defW = layout === 'mini' ? '300' : (layout === 'horizontal' ? '340' : (layout === 'text' ? '320' : (layout === 'bare' ? '420' : (layout === 'square' ? '280' : '240'))));
   const w = $('w').value;            if (w && w !== defW) p.push('w=' + w);
   const cover = $('cover').value;
   if ((layout === 'horizontal' || layout === 'mini') && cover &&
@@ -456,12 +460,14 @@ function render() {
   $('url').textContent = fullUrl(q);
 
   // Dimensions conseillées de la source OBS
-  const defW = layout === 'mini' ? 300 : (layout === 'horizontal' ? 340 : (layout === 'text' ? 320 : (layout === 'bare' ? 420 : 240)));
+  const defW = layout === 'mini' ? 300 : (layout === 'horizontal' ? 340 : (layout === 'text' ? 320 : (layout === 'bare' ? 420 : (layout === 'square' ? 280 : 240))));
   const w = parseInt($('w').value, 10) || defW;
   let h;
   if (isBanner) {
     const side = parseInt($('cover').value, 10) || (layout === 'mini' ? 60 : 84);
     h = Math.max(side, layout === 'mini' ? 60 : 84) + 40;
+  } else if (layout === 'square') {
+    h = w + 40; // carte 1:1 + marge d'ombre
   } else if (layout === 'text') {
     h = 130;
   } else if (layout === 'bare') {
@@ -625,7 +631,7 @@ ids.forEach(id => {
 // Changer de mise en page réinitialise la largeur sur le défaut de cette mise en page
 $('layout').addEventListener('change', function () {
   const l = $('layout').value;
-  $('w').value = l === 'mini' ? 300 : (l === 'horizontal' ? 340 : (l === 'text' ? 320 : (l === 'bare' ? 420 : 240)));
+  $('w').value = l === 'mini' ? 300 : (l === 'horizontal' ? 340 : (l === 'text' ? 320 : (l === 'bare' ? 420 : (l === 'square' ? 280 : 240))));
   $('cover').value = l === 'mini' ? 60 : 84;
   render(); preview(); saveCfg();
 });

@@ -129,8 +129,53 @@
   }
   body.media-square #media .bg { display: none; }
 
+  /* --- Variante CARRÉE TOUT-EN-UN (?layout=square) : la pochette EST la carte (1:1),
+     les infos flottent en bas sur un voile dégradé. Anti-crénelage : la pochette touche
+     les 4 coins → elle porte SON PROPRE arrondi complet (règle du 31/07). --- */
+  body.layout-square #card {
+    aspect-ratio: 1 / 1;
+    position: relative;
+  }
+  body.layout-square #media {
+    position: absolute;
+    inset: 0;
+    aspect-ratio: auto;
+    height: 100%;
+    border-radius: var(--radius);
+  }
+  body.layout-square #media .cover {
+    width: 100%;
+    height: 100%;
+    left: 0; top: 0;
+    transform: none;
+    border-radius: var(--radius);
+    box-shadow: none;
+  }
+  body.layout-square #media .bg { display: none; }
+  body.layout-square #info {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 34px 14px 12px;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.82) 100%);
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+  body.layout-square #trackName {
+    font-size: 16px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.55);
+  }
+  body.layout-square #artists {
+    font-size: 12.5px;
+    opacity: 0.88;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.55);
+  }
+  body.layout-square #progressWrap { margin-top: 8px; }
+  body.layout-square #track { height: 4px; }
+
   /* ===== VARIANTES DE MISE EN PAGE (?layout=) =====
      - défaut  : carte verticale « Gallery/stacked » (média en haut, textes dessous)
+     - square     : carte 1:1 « tout-en-un » — la pochette occupe TOUTE la carte, les infos
+                    (titre, artiste, barre, temps) sont superposées en bas sur un voile
+                    dégradé sombre, lisibles quelle que soit la pochette (bloc CSS ci-dessus)
      - horizontal : bandeau — pochette carrée à gauche, textes à droite
      - mini       : bandeau encore plus discret (une ligne de titre, pas de temps chiffré) */
   body.layout-horizontal #card,
@@ -506,6 +551,10 @@ const CONFIG = {
     // En bandeau, la largeur par défaut de la carte verticale serait trop étroite
     if (!q.has('w')) document.documentElement.style.setProperty('--card-w', layout === 'mini' ? '300px' : '340px');
     if (q.has('cover')) document.documentElement.style.setProperty('--media-side', num(q.get('cover'), 84) + 'px');
+  } else if (layout === 'square') {
+    document.body.classList.add('layout-square');
+    // Carré tout-en-un : 240 serait petit pour une pochette pleine carte lisible
+    if (!q.has('w')) document.documentElement.style.setProperty('--card-w', '280px');
   } else if (layout === 'text') {
     document.body.classList.add('layout-text');
     if (!q.has('w')) document.documentElement.style.setProperty('--card-w', '320px');
@@ -845,7 +894,7 @@ function tick() {
 requestAnimationFrame(tick);
 
 /* ----- Debug ----- */
-const WIDGET_VERSION = '2026-07-31b · arrondis adoucis';
+const WIDGET_VERSION = '2026-08-21 · layout carré tout-en-un';
 const diag = { ws: 'jamais connecté', msgTotal: 0, msgReco: 0, lastTypes: [], lastRaw: null };
 
 function renderDiag() {
