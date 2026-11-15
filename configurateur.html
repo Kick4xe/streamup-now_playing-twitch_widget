@@ -237,6 +237,9 @@
           </div>
         </div>
         <div class="row">
+          <div><label>Habillage</label>
+            <select id="style"><option value="">Kickaxe (contour, ombre décalée)</option><option value="classic">Classique (fond flouté)</option></select>
+          </div>
           <div><label>Ombre portée</label>
             <select id="shadow"><option value="">Oui</option><option value="0">Non</option></select>
           </div>
@@ -366,7 +369,7 @@
 
 <script>
 "use strict";
-const ids = ['base','file','layout','cover','w','media','radius','accent','text','panel','panelalpha','font','fontCustom','align','bar','times','shadow','blur','eq','scroll','autocolor','hidePaused','offset','mode','clientId','token','host','port','player'];
+const ids = ['base','file','layout','cover','w','media','radius','accent','text','panel','panelalpha','font','fontCustom','align','bar','times','style','shadow','blur','eq','scroll','autocolor','hidePaused','offset','mode','clientId','token','host','port','player'];
 const $ = id => document.getElementById(id);
 const hex = v => (v || '').replace(/^#/, '');
 
@@ -394,6 +397,7 @@ function buildQuery(withTest) {
   const align = $('align').value;        if (align) p.push('align=' + align);
   if ($('bar').value === '0')    p.push('bar=0');
   if ($('times').value === '0')  p.push('times=0');
+  if ($('style').value === 'classic') p.push('style=classic');
   if ($('shadow').value === '0') p.push('shadow=0');
   const blur = $('blur').value;          if (blur && blur !== '22') p.push('blur=' + blur);
   if ($('eq').value === '1')        p.push('eq=1');

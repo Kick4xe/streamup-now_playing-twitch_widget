@@ -276,7 +276,7 @@
     opacity: 0.85;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.75);
   }
-  body.layout-bare #artists::before { content: '— '; opacity: 0.6; }
+  body.layout-bare #artists::before { content: '· '; opacity: 0.6; }
   body.layout-bare #card.paused #info { opacity: 0.6; transition: opacity 0.3s ease; }
   /* Une pastille discrète « ♪ » devant le titre, pour signaler qu'il s'agit de musique */
   body.layout-bare #trackName::before { content: '♪ '; opacity: 0.75; }
@@ -448,6 +448,36 @@
     z-index: 9999;
   }
   body.debug #dbg { display: block; }
+
+  /* ===== Habillage « Kickaxe » (défaut ; ?style=classic rend l'apparence d'origine) =====
+     Langage « affiche imprimée » commun à la suite (Shoutout, Sticky Notes) : aplat sombre,
+     contour crème, ombre pleine décalée orange, pochette nette sur fond uni au lieu du fond
+     flouté : la pochette est le seul visuel. Aucun flou : rendu net dans OBS. */
+  body.style-kickaxe #card {
+    background: var(--panel-bg);
+    border: 2px solid var(--cream);
+    border-radius: calc(var(--radius) + 2px);
+    box-shadow: 6px 6px 0 0 var(--orange);
+    margin: 0 6px 6px 0;
+  }
+  body.style-kickaxe.no-shadow #card { box-shadow: none; margin: 0; }
+  body.style-kickaxe #media .bg { display: none; }
+  /* pochette centrée (disposition verticale par défaut uniquement) : coins vifs, sans ombre */
+  body.style-kickaxe:not(.media-square):not(.layout-square):not(.layout-horizontal):not(.layout-mini) #media .cover {
+    border-radius: 3px;
+    box-shadow: none;
+  }
+  body.style-kickaxe #pauseBadge {
+    border-radius: 4px;
+    background: var(--cream);
+    color: var(--dark);
+  }
+  body.style-kickaxe #track,
+  body.style-kickaxe #fill { border-radius: 1px; }
+  body.style-kickaxe #track { height: 5px; }
+  body.style-kickaxe #trackName { letter-spacing: -0.01em; }
+  /* sans carte (?layout=bare) : pas de contour ni d'ombre */
+  body.style-kickaxe.layout-bare #card { border: 0; box-shadow: none; margin: 0; background: transparent; }
 </style>
 </head>
 <body>
@@ -544,6 +574,11 @@ const CONFIG = {
     document.body.classList.add('media-square');
   } else if (q.get('media') === 'portrait') {
     document.documentElement.style.setProperty('--media-ratio', '9 / 16');
+  }
+  if (q.get('style') !== 'classic') {
+    document.body.classList.add('style-kickaxe');
+    // arrondi plus sec par défaut ; un ?radius= explicite reste prioritaire (appliqué plus bas)
+    if (!q.has('radius')) document.documentElement.style.setProperty('--radius', '10px');
   }
   const layout = q.get('layout');
   if (layout === 'horizontal' || layout === 'mini') {
@@ -894,7 +929,7 @@ function tick() {
 requestAnimationFrame(tick);
 
 /* ----- Debug ----- */
-const WIDGET_VERSION = '2026-08-21 · layout carré tout-en-un';
+const WIDGET_VERSION = '2026-11-15 · habillage Kickaxe';
 const diag = { ws: 'jamais connecté', msgTotal: 0, msgReco: 0, lastTypes: [], lastRaw: null };
 
 function renderDiag() {
@@ -1014,7 +1049,7 @@ function runTest() {
       durationMs: 24000,
       coverImageURL: makeDemoCover('#0EA5E9',
         '<path fill="#fbf9f1" d="M195 60a95 95 0 1 0 60 150 80 80 0 0 1-60-150z"/>') },
-    { trackId: 'demo2', trackName: 'Pixels & Confettis (feat. RosePixel) — version longue pour tester l\'ellipse sur deux lignes', artists: 'RosePixel, VoltGamer',
+    { trackId: 'demo2', trackName: 'Pixels & Confettis (feat. RosePixel), version longue pour tester l\'ellipse sur deux lignes', artists: 'RosePixel, VoltGamer',
       durationMs: 18000,
       coverImageURL: makeDemoCover('#EC4899',
         '<path fill="#fbf9f1" d="M150 245s-84-53-118-97C9 117 20 69 60 54c26-10 55-2 73 20l17 21 17-21c18-22 47-30 73-20 40 15 51 63 28 94-34 44-118 97-118 97z"/>') },
@@ -1200,7 +1235,7 @@ function pollOnce() {
     if (r.status === 401) { return refreshTokens().then(function () { return null; }); }
     if (r.status === 429) {                              // trop d'appels : on ralentit
       const wait = parseInt(r.headers.get('Retry-After') || '5', 10);
-      diag.ws = 'Spotify limite les appels — pause de ' + wait + ' s';
+      diag.ws = 'Spotify limite les appels, pause de ' + wait + ' s';
       renderDiag();
       schedulePoll(wait * 1000);
       return null;
@@ -1209,7 +1244,7 @@ function pollOnce() {
     return r.json();
   }).then(function (j) {
     if (j) {
-      diag.ws = 'MODE DIRECT — connecté ✅';
+      diag.ws = 'MODE DIRECT · connecté ✅';
       diag.msgTotal++; diag.msgReco++;
       if (CONFIG.debug) diag.lastRaw = { source: 'spotify', is_playing: j.is_playing, progress_ms: j.progress_ms };
       renderDiag();
@@ -1217,7 +1252,7 @@ function pollOnce() {
     }
     schedulePoll();
   }).catch(function (e) {
-    diag.ws = 'MODE DIRECT — ' + (e && e.message ? e.message : 'erreur');
+    diag.ws = 'MODE DIRECT · ' + (e && e.message ? e.message : 'erreur');
     renderDiag();
     schedulePoll(5000);                                   // on réessaie posément
   });

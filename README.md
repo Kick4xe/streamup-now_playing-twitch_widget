@@ -110,6 +110,27 @@ public class CPHInline
 Attention : la sous-action « Custom Event Trigger » ne marche pas pour ça, elle n'envoie rien
 sur le WebSocket. J'ai perdu une bonne heure dessus.
 
+### Les commandes de chat (!song et compagnie)
+
+Elles ne viennent pas de ce widget. L'overlay se contente d'afficher : il ne lit pas le chat et
+n'écrit jamais sur Twitch. Les commandes appartiennent à l'extension Spotify que vous installez
+dans Streamer.bot, et elles fonctionnent indépendamment de l'affichage.
+
+Deux choses à savoir si vous les activez :
+
+- À l'import, on active souvent tout le groupe d'un coup. Résultat : des commandes que vous ne
+  vouliez pas se retrouvent utilisables par vos viewers. Faites le tri dans l'onglet Commands,
+  le widget n'a besoin d'aucune commande pour fonctionner.
+- Certaines actions répondent **en message privé**. Ça m'est arrivé deux fois sans le vouloir,
+  en testant des actions de l'extension à la main. Si vous voulez tester quelque chose, testez
+  uniquement votre propre action « pont » : elle ne contient que le code C# et ne parle à
+  personne.
+
+Si vous êtes en mode direct (méthode 1) et que vous voulez quand même les commandes, rien ne vous
+empêche d'installer l'extension juste pour ça : les deux cohabitent, l'overlay continuera de
+prendre ses données chez Spotify. Le widget choisit le mode direct dès qu'un `clientId` est
+présent dans son adresse, et écoute Streamer.bot sinon.
+
 ## Réglages
 
 Tout se passe dans l'adresse. Le configurateur les génère pour vous, mais voici la liste.
@@ -130,6 +151,7 @@ Tout se passe dans l'adresse. Le configurateur les génère pour vous, mais voic
 | `?font=Inter` | Police (Google Fonts) |
 | `?align=center` ou `?align=right` | Alignement des textes |
 | `?bar=0` / `?times=0` | Masquer la barre / les temps |
+| `?style=classic` | Habillage d'origine (fond flouté, ombre douce) au lieu de l'habillage Kickaxe par défaut (contour, ombre décalée) |
 | `?shadow=0` | Sans ombre portée |
 | `?blur=22` | Flou du fond derrière la pochette |
 | `?eq=1` | Petit égaliseur animé pendant la lecture |
